@@ -117,6 +117,22 @@ class GraphApp:
         self.color_map = [colores[coloreado[nodo] % len(colores)] for nodo in self.graph.nodes()]
         self.draw_graph()
 
+    def match_nodes(self):
+        """Emparejar nodos cuya distancia sea menor a 150."""
+        matching = nx.max_weight_matching(self.graph, maxcardinality=True)
+        matched_edges = [(u, v) for u, v in matching if self.graph[u][v]['weight'] < 150]
+        
+        # Dibujar el emparejamiento en el grafo
+        plt.clf()
+        pos = nx.spring_layout(self.graph)
+        weights = nx.get_edge_attributes(self.graph, 'weight')
+
+        nx.draw(self.graph, pos, with_labels=True, node_color=self.color_map or 'skyblue', 
+                node_size=500, font_weight='bold')
+        nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=weights)
+        nx.draw_networkx_edges(self.graph, pos, edgelist=matched_edges, edge_color='r', width=2)
+        self.canvas.draw()
+
     def create_widgets(self):
         """Crear los widgets de la interfaz gráfica."""
         # Figura de matplotlib
@@ -130,6 +146,9 @@ class GraphApp:
 
         btn_remove = tk.Button(self.root, text="Eliminar Nodo", command=self.remove_node)
         btn_remove.pack(side=tk.LEFT, padx=10, pady=10)
+
+        btn_match = tk.Button(self.root, text="Emparejar Nodos", command=self.match_nodes)
+        btn_match.pack(side=tk.LEFT, padx=10, pady=10)
 
 # Crear la aplicación
 root = tk.Tk()
